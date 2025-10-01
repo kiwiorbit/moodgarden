@@ -1,0 +1,22 @@
+
+{
+  "short_name": "Mood Garden",
+  "name": "Mood Garden: Grow Your Happiness",
+  "icons": [
+    {
+      "src": "https://framerusercontent.com/images/158E52E2-1A3B-4A7B-9D0A-5B0E1B0E1B0E.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "https://framerusercontent.com/images/158E52E2-1A3B-4A7B-9D0A-5B0E1B0E1B0E.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#a7f3d0",
+  "background_color": "#ffffff",
+  "description": "A fun, interactive game that helps users improve their mood by growing a magical garden."
+}
