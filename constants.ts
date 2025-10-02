@@ -8,6 +8,11 @@ export const MOODS: { type: Mood, icon: string }[] = [
     { type: Mood.Excited, icon: '🤩' },
 ];
 
+export const POSITIVE_WORDS: string[] = [
+    'CALM', 'JOY', 'LOVE', 'HOPE', 'PEACE', 'GROW',
+    'SHINE', 'SMILE', 'HAPPY', 'KIND', 'BRAVE', 'DREAM'
+];
+
 export const ACTIVITIES: Activity[] = [
   {
     type: ActivityType.Gratitude,
@@ -29,6 +34,20 @@ export const ACTIVITIES: Activity[] = [
     description: 'Draw anything that makes you happy for a few moments.',
     icon: '🎨',
     points: 20,
+  },
+  {
+    type: ActivityType.WordSearch,
+    name: 'Word Find',
+    description: 'Find the hidden positive words.',
+    icon: '🔍',
+    points: 20,
+  },
+  {
+    type: ActivityType.ZenGarden,
+    name: 'Zen Garden',
+    description: 'Relax and create patterns in the sand.',
+    icon: '🎋',
+    points: 15,
   },
 ];
 

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Mood, JournalEntry } from '../types';
+import { Mood, JournalEntry, MoodEntry } from '../types';
 
 const getGardenLevel = (score: number): number => {
   if (score < 10) return 0; // Seed
@@ -72,6 +72,16 @@ export const useGameState = () => {
     }
   });
 
+  const [moodHistory, setMoodHistory] = useState<MoodEntry[]>(() => {
+    try {
+      const saved = localStorage.getItem('moodGardenMoodHistory');
+      return saved ? JSON.parse(saved) : [];
+    } catch (error) {
+      console.error('Error reading mood history from localStorage', error);
+      return [];
+    }
+  });
+
   const [gardenLevel, setGardenLevel] = useState<number>(getGardenLevel(score));
 
   useEffect(() => {
@@ -119,6 +129,14 @@ export const useGameState = () => {
     }
   }, [journalEntries]);
 
+  useEffect(() => {
+    try {
+      localStorage.setItem('moodGardenMoodHistory', JSON.stringify(moodHistory));
+    } catch (error) {
+      console.error('Error saving mood history to localStorage', error);
+    }
+  }, [moodHistory]);
+
   const addJournalEntry = useCallback((text: string) => {
     const newEntry: JournalEntry = {
         id: new Date().toISOString(),
@@ -137,9 +155,15 @@ export const useGameState = () => {
   }, []);
 
   const selectMood = useCallback((mood: Mood): { bonusPoints: number } => {
-    console.log('Mood selected:', mood);
     const today = getTodayDateString();
     setLastMoodSelectionDate(today);
+
+    setMoodHistory(prevHistory => {
+        if (prevHistory.some(entry => entry.date === today)) {
+            return prevHistory;
+        }
+        return [...prevHistory, { date: today, mood }];
+    });
 
     if (lastStreakUpdate === today) {
         return { bonusPoints: 0 };
@@ -167,5 +191,5 @@ export const useGameState = () => {
 
   const isMoodSelectedToday = lastMoodSelectionDate === getTodayDateString();
 
-  return { score, gardenLevel, streak, completeActivity, selectMood, isMoodSelectedToday, journalEntries, addJournalEntry, deleteJournalEntry };
+  return { score, gardenLevel, streak, completeActivity, selectMood, isMoodSelectedToday, journalEntries, addJournalEntry, deleteJournalEntry, moodHistory };
 };

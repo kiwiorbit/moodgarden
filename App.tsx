@@ -1,22 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { Header } from './components/Header';
 import { Garden } from './components/Garden';
-import { ScoreDisplay } from './components/ScoreDisplay';
-import { StreakDisplay } from './components/StreakDisplay';
-import { ActivityModal } from './components/ActivityModal';
-import { DailyAffirmation } from './components/DailyAffirmation';
 import { useGameState } from './hooks/useGameState';
-import { Activity, Mood } from './types';
-import { ACTIVITIES } from './constants';
+import { Mood } from './types';
 import { LoadingScreen } from './components/LoadingScreen';
 import { MoodSelector } from './components/MoodSelector';
 import { JournalHistory } from './components/JournalHistory';
+import { MoodStats } from './components/MoodStats';
+import { MainScreen } from './components/MainScreen';
+import { ZenGarden } from './components/ZenGarden';
+import { WordSearch } from './components/WordSearch';
+import { JournalActivity } from './components/JournalActivity';
+import { DoodleActivity } from './components/DoodleActivity';
+import { BreathingActivity } from './components/BreathingActivity';
+
+export type View = 'hub' | 'moodGarden' | 'zenGarden' | 'wordSearch' | 'journal' | 'doodle' | 'breathe' | 'stats' | 'journalHistory';
 
 function App() {
-  const { score, gardenLevel, streak, completeActivity, isMoodSelectedToday, selectMood, journalEntries, addJournalEntry, deleteJournalEntry } = useGameState();
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isJournalHistoryOpen, setIsJournalHistoryOpen] = useState(false);
-  const [currentActivity, setCurrentActivity] = useState<Activity | null>(null);
+  const { score, gardenLevel, streak, completeActivity, isMoodSelectedToday, selectMood, journalEntries, addJournalEntry, deleteJournalEntry, moodHistory } = useGameState();
+  const [currentView, setCurrentView] = useState<View>('hub');
   const [isLoading, setIsLoading] = useState(true);
   const [rewardMessage, setRewardMessage] = useState<string | null>(null);
 
@@ -36,17 +38,6 @@ function App() {
     const timer = setTimeout(() => setIsLoading(false), 2500); // Loading screen duration
     return () => clearTimeout(timer);
   }, []);
-
-  const handleStartActivity = (activity: Activity) => {
-    setCurrentActivity(activity);
-    setIsModalOpen(true);
-  };
-
-  const handleCompleteActivity = (points: number) => {
-    completeActivity(points);
-    setIsModalOpen(false);
-    setCurrentActivity(null);
-  };
   
   const handleMoodSelect = (mood: Mood) => {
       const { bonusPoints } = selectMood(mood);
@@ -57,6 +48,38 @@ function App() {
           }, 3500);
       }
   };
+  
+  const handleNavigate = (view: View) => setCurrentView(view);
+  const handleBackToHub = () => setCurrentView('hub');
+  
+  const handleCompleteActivity = (points: number) => {
+    completeActivity(points);
+    handleBackToHub();
+  };
+
+  const renderCurrentView = () => {
+    switch(currentView) {
+      case 'moodGarden':
+        return <Garden level={gardenLevel} onBack={handleBackToHub} />;
+      case 'zenGarden':
+        return <ZenGarden onBack={handleBackToHub} onComplete={() => handleCompleteActivity(15)} />;
+      case 'wordSearch':
+        return <WordSearch onBack={handleBackToHub} onComplete={() => handleCompleteActivity(20)} />;
+      case 'journal':
+        return <JournalActivity onBack={handleBackToHub} onComplete={() => handleCompleteActivity(15)} addJournalEntry={addJournalEntry} />;
+      case 'doodle':
+        return <DoodleActivity onBack={handleBackToHub} onComplete={() => handleCompleteActivity(20)} />;
+      case 'breathe':
+        return <BreathingActivity onBack={handleBackToHub} onComplete={() => handleCompleteActivity(10)} />;
+      case 'stats':
+        return <MoodStats moodHistory={moodHistory} onBack={handleBackToHub} />;
+      case 'journalHistory':
+        return <JournalHistory entries={journalEntries} onBack={handleBackToHub} onDelete={deleteJournalEntry} />;
+      case 'hub':
+      default:
+        return <MainScreen onNavigate={handleNavigate} score={score} streak={streak} />;
+    }
+  };
 
   const renderMainContent = () => {
     if (!isMoodSelectedToday) {
@@ -66,46 +89,7 @@ function App() {
         </div>
       );
     }
-
-    return (
-       <>
-        <Header />
-        <div className="flex items-center gap-3 flex-shrink-0 mb-2">
-            <ScoreDisplay score={score} />
-            <StreakDisplay streak={streak} />
-        </div>
-        <main className="w-full flex-grow flex items-center justify-center transition-all duration-500">
-          <Garden level={gardenLevel} />
-        </main>
-        <div className="w-full max-w-md p-4 bg-white/40 rounded-t-3xl shadow-lg backdrop-blur-lg border-t border-white/50 flex-shrink-0">
-          <DailyAffirmation />
-          <div className="my-3 h-px bg-white/50"></div>
-          <div className="flex justify-between items-center mb-3">
-             <h2 className="text-lg font-bold text-green-900 tracking-wide">Mood Boosters</h2>
-             <button
-                onClick={() => setIsJournalHistoryOpen(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-white/70 rounded-full shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50"
-             >
-                <span className="text-xl">📖</span>
-                <span className="text-sm font-semibold text-purple-800">My Journal</span>
-             </button>
-          </div>
-          <div className="grid grid-cols-3 gap-3 text-center">
-            {ACTIVITIES.map((activity) => (
-              <button
-                key={activity.type}
-                onClick={() => handleStartActivity(activity)}
-                className="flex flex-col items-center justify-center p-2 bg-white/70 rounded-2xl shadow-md hover:shadow-lg transform hover:-translate-y-1 transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50"
-                aria-label={activity.name}
-              >
-                <span className="text-3xl sm:text-4xl">{activity.icon}</span>
-                <span className="text-xs font-semibold text-gray-700 mt-1 tracking-tight">{activity.name}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-      </>
-    );
+    return renderCurrentView();
   };
 
   return (
@@ -115,22 +99,7 @@ function App() {
       ) : (
         <div className="flex flex-col items-center w-full h-full relative">
           {renderMainContent()}
-          {isModalOpen && currentActivity && (
-            <ActivityModal
-              activity={currentActivity}
-              onClose={() => setIsModalOpen(false)}
-              onComplete={handleCompleteActivity}
-              addJournalEntry={addJournalEntry}
-            />
-          )}
-          {isJournalHistoryOpen && (
-            <JournalHistory 
-              entries={journalEntries}
-              onClose={() => setIsJournalHistoryOpen(false)}
-              onDelete={deleteJournalEntry}
-            />
-          )}
-           {rewardMessage && (
+          {rewardMessage && (
             <div key={rewardMessage} className="absolute top-1/4 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center animate-celebrate">
               <span className="text-6xl mb-2" role="img" aria-label="Party popper">🎉</span>
               <div className="bg-yellow-300 text-yellow-900 font-bold text-2xl px-6 py-3 rounded-full shadow-2xl border-4 border-white">
@@ -159,6 +128,25 @@ function App() {
           .animate-celebrate {
             animation: celebrate 3.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
           }
+          @keyframes slide-in-from-bottom {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+          }
+          .animate-slide-in-from-bottom { animation: slide-in-from-bottom 0.4s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
+          @keyframes fade-in {
+            from { opacity: 0; } to { opacity: 1; }
+          }
+          .animate-fade-in { animation: fade-in 0.5s ease-out forwards; }
+           @keyframes fade-in-up {
+              from { opacity: 0; transform: translateY(20px); }
+              to { opacity: 1; transform: translateY(0); }
+            }
+            .animate-fade-in-up {
+                opacity: 0;
+                animation: fade-in-up 0.5s ease-out forwards;
+            }
+             .animate-fade-in-fast { animation: fade-in 0.2s ease-out forwards; }
+             .text-ellipsis { text-overflow: ellipsis; }
        `}</style>
     </div>
   );

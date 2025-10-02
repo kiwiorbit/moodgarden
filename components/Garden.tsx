@@ -2,6 +2,7 @@ import React from 'react';
 
 interface GardenProps {
   level: number;
+  onBack: () => void;
 }
 
 const GardenElement: React.FC<{ children: React.ReactNode, show: boolean, className?: string, style?: React.CSSProperties }> = ({ children, show, className, style }) => {
@@ -12,9 +13,19 @@ const GardenElement: React.FC<{ children: React.ReactNode, show: boolean, classN
   );
 };
 
-export const Garden: React.FC<GardenProps> = ({ level }) => {
+export const Garden: React.FC<GardenProps> = ({ level, onBack }) => {
   return (
     <div className="w-full h-full bg-sky-400 shadow-2xl overflow-hidden relative flex items-center justify-center">
+      <button 
+        onClick={onBack} 
+        className="absolute top-4 left-4 z-10 bg-white/70 backdrop-blur-md rounded-full px-4 py-2 shadow-lg border border-white/50 flex items-center gap-2 font-semibold text-gray-700 hover:bg-white transition"
+        aria-label="Back to Hub"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+          <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
+        </svg>
+        Hub
+      </button>
       {/* Background elements */}
       <div className="absolute inset-0 bg-gradient-to-t from-cyan-300 via-sky-400 to-blue-500"></div>
       

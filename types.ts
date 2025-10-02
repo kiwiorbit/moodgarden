@@ -10,6 +10,8 @@ export enum ActivityType {
   Gratitude = 'GRATITUDE',
   Breathing = 'BREATHING',
   Drawing = 'DRAWING',
+  WordSearch = 'WORD_SEARCH',
+  ZenGarden = 'ZEN_GARDEN',
 }
 
 export interface Activity {
@@ -24,4 +26,9 @@ export interface JournalEntry {
   id: string;
   date: string;
   text: string;
+}
+
+export interface MoodEntry {
+  date: string;
+  mood: Mood;
 }

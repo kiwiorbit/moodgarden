@@ -3,7 +3,7 @@ import { JournalEntry } from '../types';
 
 interface JournalHistoryProps {
   entries: JournalEntry[];
-  onClose: () => void;
+  onBack: () => void;
   onDelete: (id: string) => void;
 }
 
@@ -16,7 +16,7 @@ const formatDate = (dateString: string) => {
     });
 };
 
-export const JournalHistory: React.FC<JournalHistoryProps> = ({ entries, onClose, onDelete }) => {
+export const JournalHistory: React.FC<JournalHistoryProps> = ({ entries, onBack, onDelete }) => {
   const [selectedEntry, setSelectedEntry] = useState<JournalEntry | null>(null);
   const [entryToDelete, setEntryToDelete] = useState<JournalEntry | null>(null);
 
@@ -95,7 +95,7 @@ export const JournalHistory: React.FC<JournalHistoryProps> = ({ entries, onClose
         <h2 className="text-3xl font-bold text-gray-800">
           {selectedEntry ? "Journal Entry" : "My Journal"}
         </h2>
-        <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors text-4xl leading-none" aria-label="Close journal">&times;</button>
+        <button onClick={onBack} className="text-gray-400 hover:text-gray-600 transition-colors text-4xl leading-none" aria-label="Close journal">&times;</button>
       </header>
       <main className="flex-grow overflow-y-auto relative">
         {entries.length === 0 && !selectedEntry ? (
@@ -110,21 +110,6 @@ export const JournalHistory: React.FC<JournalHistoryProps> = ({ entries, onClose
       </main>
 
       {entryToDelete && renderDeleteConfirmation()}
-
-       <style>{`
-          @keyframes slide-in-from-bottom {
-            from { transform: translateY(100%); }
-            to { transform: translateY(0); }
-          }
-          .animate-slide-in-from-bottom { animation: slide-in-from-bottom 0.4s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
-          @keyframes fade-in {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-          }
-          .animate-fade-in { animation: fade-in 0.5s ease-out forwards; }
-          .animate-fade-in-fast { animation: fade-in 0.2s ease-out forwards; }
-          .text-ellipsis { text-overflow: ellipsis; }
-       `}</style>
     </div>
   );
 };
